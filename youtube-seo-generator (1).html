@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>YouTube SEO Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f5f5f4;
+        --surface: #ffffff;
+        --surface-2: #efefed;
+        --ink: #191919;
+        --muted: #5f5f5c;
+        --faint: #8a8a86;
+        --line: #e0ded9;
+        --accent: #d92315;
+        --accent-dark: #b71c0e;
+        --accent-soft: #fdecea;
+        --ok: #177245;
+        --ok-soft: #e6f4ec;
+        --chip: #f0efec;
+        --thumb-yellow: #ffe600;
+        --shadow: 0 1px 2px rgba(20, 18, 16, .06), 0 8px 24px rgba(20, 18, 16, .06);
+        --radius: 14px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #121212;
+          --surface: #1d1d1d;
+          --surface-2: #262626;
+          --ink: #f3f2ef;
+          --muted: #b3b1ab;
+          --faint: #83817b;
+          --line: #343432;
+          --accent: #ff5147;
+          --accent-dark: #ff6f66;
+          --accent-soft: #3a1d1a;
+          --ok: #4cc07e;
+          --ok-soft: #173325;
+          --chip: #2b2b29;
+          --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+        font-size: 17px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 28px 18px 64px; }
+      h1, h2, h3, p { margin: 0; }
+      button, input, textarea, select { font: inherit; color: inherit; }
+      button { cursor: pointer; }
+
+      /* ---------- header ---------- */
+      .lead { margin-bottom: 26px; }
+      .lead h1 { font-size: clamp(26px, 5.4vw, 36px); font-weight: 700; line-height: 1.25; letter-spacing: -.01em; }
+      .lead h1 .accent { color: var(--accent); }
+      .lead p { margin-top: 8px; color: var(--muted); max-width: 56ch; }
+
+      /* ---------- cards & forms ---------- */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        margin-bottom: 18px;
+      }
+      .card-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+      .step-num {
+        flex: none; width: 26px; height: 26px; border-radius: 50%;
+        background: var(--accent); color: #fff; font-weight: 700; font-size: 15px;
+        display: inline-flex; align-items: center; justify-content: center;
+        transform: translateY(4px);
+      }
+      .card-head h2 { font-size: 20px; font-weight: 600; }
+      .card-head .hint { color: var(--faint); font-size: 14.5px; }
+
+      .dropzone {
+        border: 2px dashed var(--line);
+        border-radius: 12px;
+        padding: 26px 16px;
+        text-align: center;
+        background: var(--surface-2);
+        transition: border-color .15s, background .15s;
+      }
+      .dropzone.drag { border-color: var(--accent); background: var(--accent-soft); }
+      .dropzone .play-ic { width: 46px; height: 46px; margin: 0 auto 8px; display: block; }
+      .dropzone p { color: var(--muted); font-size: 15.5px; }
+      .dropzone .big { color: var(--ink); font-size: 17px; font-weight: 600; }
+      .file-btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        margin-top: 12px; min-height: 44px; padding: 9px 20px;
+        background: var(--accent); color: #fff; border: none; border-radius: 10px;
+        font-weight: 600; font-size: 16px;
+      }
+      .file-btn:active { background: var(--accent-dark); }
+      input[type="file"] {
+        position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+        overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+        white-space: nowrap; border: 0;
+      }
+
+      .video-box { display: none; margin-top: 16px; }
+      .video-box.show { display: block; }
+      .video-box video { width: 100%; max-height: 340px; border-radius: 10px; background: #000; display: block; }
+      .meta-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 10px; margin-top: 12px;
+      }
+      .meta-item { background: var(--surface-2); border-radius: 10px; padding: 9px 12px; }
+      .meta-item .k { font-size: 13px; color: var(--faint); }
+      .meta-item .v { font-weight: 600; font-size: 15.5px; overflow-wrap: anywhere; }
+
+      .field { margin-bottom: 16px; }
+      .field:last-child { margin-bottom: 0; }
+      .field label { display: block; font-weight: 600; margin-bottom: 6px; }
+      .field label .req { color: var(--accent); }
+      .field .hint { color: var(--faint); font-size: 14.5px; margin-top: 5px; }
+      .field input[type="text"], .field textarea {
+        width: 100%; min-height: 48px; padding: 11px 13px;
+        background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px;
+      }
+      .field textarea { min-height: 76px; resize: vertical; line-height: 1.5; }
+      .field input[type="text"]:focus, .field textarea:focus {
+        outline: none; border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+      .field .err { display: none; color: var(--accent); font-size: 14.5px; margin-top: 5px; font-weight: 500; }
+      .field.invalid input { border-color: var(--accent); }
+      .field.invalid .err { display: block; }
+
+      .seg { display: flex; gap: 8px; flex-wrap: wrap; }
+      .seg button {
+        min-height: 44px; padding: 9px 18px; border-radius: 999px;
+        border: 1.5px solid var(--line); background: var(--surface);
+        font-weight: 600; font-size: 15.5px;
+      }
+      .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+      details.adv { margin-top: 4px; }
+      details.adv summary { min-height: 40px; display: flex; align-items: center; font-weight: 600; color: var(--muted); cursor: pointer; }
+      details.adv .field { margin-top: 10px; }
+
+      .generate-btn {
+        width: 100%; min-height: 54px; border: none; border-radius: 12px;
+        background: var(--accent); color: #fff;
+        font-size: 19px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        box-shadow: var(--shadow);
+      }
+      .generate-btn:active { background: var(--accent-dark); }
+
+      /* ---------- results ---------- */
+      #view-result { display: none; }
+      .result-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+      .back-btn {
+        min-height: 44px; padding: 8px 16px; border-radius: 10px;
+        border: 1.5px solid var(--line); background: var(--surface); font-weight: 600;
+        display: inline-flex; align-items: center; gap: 7px;
+      }
+      .result-top h2 { font-size: 22px; font-weight: 700; }
+      .result-top .topic-echo { color: var(--muted); width: 100%; font-size: 15.5px; overflow-wrap: anywhere; }
+
+      .block {
+        background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+        box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 16px;
+      }
+      .block-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+      .block-head h3 { font-size: 17.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+      .count { font-size: 13.5px; color: var(--faint); font-family: "JetBrains Mono", monospace; white-space: nowrap; }
+      .count.over { color: var(--accent); font-weight: 600; }
+
+      .copy-btn {
+        flex: none; min-height: 38px; padding: 6px 14px; border-radius: 9px;
+        border: 1.5px solid var(--line); background: var(--surface);
+        font-weight: 600; font-size: 14.5px;
+        display: inline-flex; align-items: center; gap: 6px;
+      }
+      .copy-btn.done { border-color: var(--ok); color: var(--ok); background: var(--ok-soft); }
+      .copy-btn svg { width: 15px; height: 15px; flex: none; }
+
+      .title-opt {
+        display: flex; align-items: flex-start; gap: 10px;
+        border: 1.5px solid var(--line); border-radius: 11px;
+        padding: 12px 13px; margin-bottom: 10px; cursor: pointer;
+      }
+      .title-opt:last-child { margin-bottom: 0; }
+      .title-opt.selected { border-color: var(--accent); background: var(--accent-soft); }
+      .title-opt input { margin-top: 5px; width: 19px; height: 19px; accent-color: var(--accent); flex: none; }
+      .title-opt .t { font-weight: 600; font-size: 17px; line-height: 1.4; overflow-wrap: anywhere; }
+      .title-opt .c { font-size: 13px; color: var(--faint); font-family: "JetBrains Mono", monospace; }
+      .title-opt .copy-btn { margin-left: auto; }
+
+      .text-box {
+        background: var(--surface-2); border-radius: 10px; padding: 13px 14px;
+        white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15.5px; line-height: 1.6;
+      }
+      .text-box.mono { font-family: "JetBrains Mono", monospace; font-size: 13.5px; line-height: 1.65; }
+      .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+      .chip { background: var(--chip); border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 500; }
+      .hash-row { font-size: 17px; font-weight: 600; color: var(--accent-dark); overflow-wrap: anywhere; }
+      @media (prefers-color-scheme: dark) { .hash-row { color: var(--accent); } }
+
+      .thumb-wrap {
+        position: relative; border-radius: 11px; overflow: hidden; background: #000;
+        aspect-ratio: 16 / 9; margin-bottom: 12px;
+      }
+      .thumb-wrap.portrait { aspect-ratio: 9 / 16; max-width: 300px; margin-left: auto; margin-right: auto; }
+      .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .thumb-wrap .no-frame {
+        position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+        color: #bbb; font-size: 15px; text-align: center; padding: 16px; background: #1c1c1c;
+      }
+      .thumb-text {
+        position: absolute; left: 4%; right: 4%; bottom: 7%;
+        text-align: center; font-weight: 700; line-height: 1.22;
+        font-size: clamp(24px, 7.2vw, 46px);
+        color: var(--thumb-yellow);
+        text-shadow: 0 0 6px #000, 2px 2px 0 #000, -2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000, 0 3px 0 #000;
+        pointer-events: none; overflow-wrap: anywhere;
+      }
+      .thumb-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+      .thumb-opts button {
+        min-height: 40px; padding: 7px 14px; border-radius: 999px;
+        border: 1.5px solid var(--line); background: var(--surface); font-weight: 600; font-size: 15px;
+      }
+      .thumb-opts button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+      .thumb-edit { display: flex; gap: 8px; flex-wrap: wrap; }
+      .thumb-edit input { flex: 1 1 200px; min-height: 46px; padding: 10px 13px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); }
+      .thumb-edit input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+      .dl-row { display: flex; gap: 10px; flex-wrap: wrap; }
+      .dl-btn {
+        flex: 1 1 220px; min-height: 50px; border-radius: 11px; border: none;
+        font-weight: 700; font-size: 16px; padding: 10px 16px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      }
+      .dl-btn.primary { background: var(--accent); color: #fff; }
+      .dl-btn.primary:active { background: var(--accent-dark); }
+      .dl-btn.ghost { background: var(--surface); border: 1.5px solid var(--line); color: var(--ink); }
+
+      /* ---------- publish guide ---------- */
+      .guide { margin-top: 34px; }
+      .guide > h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+      .guide > p { color: var(--muted); margin-bottom: 16px; max-width: 60ch; }
+      .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+      .step-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 17px; box-shadow: var(--shadow); }
+      .step-card .n { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--accent); font-weight: 600; }
+      .step-card h3 { font-size: 17px; font-weight: 600; margin: 5px 0 6px; }
+      .step-card p { color: var(--muted); font-size: 15px; }
+      .step-card p b { color: var(--ink); }
+      .guide .dl-btn { margin-top: 16px; width: 100%; }
+
+      .toast {
+        position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 80px);
+        background: var(--ink); color: var(--bg); font-weight: 600; font-size: 15px;
+        padding: 11px 20px; border-radius: 999px; box-shadow: var(--shadow);
+        transition: transform .25s ease; z-index: 50; pointer-events: none;
+        max-width: calc(100vw - 32px); text-align: center;
+      }
+      .toast.show { transform: translate(-50%, 0); }
+      @media (prefers-reduced-motion: reduce) { .toast { transition: none; } .dropzone { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+
+      <!-- ================= INPUT VIEW ================= -->
+      <div id="view-input">
+        <div class="lead">
+          <h1>ভিডিওর জন্য <span class="accent">YouTube SEO</span> তৈরি করুন</h1>
+          <p>ভিডিওটি বেছে নিন আর টপিক লিখুন — শিরোনাম, বিবরণ, ট্যাগ, হ্যাশট্যাগ, থাম্বনেইলের লেখা আর পিন করা কমেন্টসহ পুরো SEO প্যাক আলাদা পেজে সাজিয়ে দেওয়া হবে।</p>
+        </div>
+
+        <section class="card" aria-labelledby="h-upload">
+          <div class="card-head">
+            <span class="step-num">১</span>
+            <h2 id="h-upload">ভিডিও বেছে নিন</h2>
+            <span class="hint">(ঐচ্ছিক)</span>
+          </div>
+          <div class="dropzone" id="dropzone">
+            <svg class="play-ic" viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="9" width="42" height="30" rx="8" fill="#d92315"/><path d="M20 17.5v13l11-6.5z" fill="#fff"/></svg>
+            <p class="big">ভিডিও ফাইল এখানে টেনে ছাড়ুন</p>
+            <p>অথবা নিচের বোতাম থেকে ফোন/কম্পিউটার থেকে বেছে নিন</p>
+            <label class="file-btn" for="file-input" role="button" tabindex="0">ভিডিও বেছে নিন</label>
+            <input type="file" id="file-input" accept="video/*" />
+          </div>
+          <div class="video-box" id="video-box">
+            <video id="video-preview" controls playsinline preload="metadata"></video>
+            <div class="meta-grid">
+              <div class="meta-item"><div class="k">ফাইলের নাম</div><div class="v" id="meta-name">—</div></div>
+              <div class="meta-item"><div class="k">সময়কাল</div><div class="v" id="meta-duration">—</div></div>
+              <div class="meta-item"><div class="k">রেজোলিউশন</div><div class="v" id="meta-res">—</div></div>
+              <div class="meta-item"><div class="k">ফাইলের সাইজ</div><div class="v" id="meta-size">—</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-topic">
+          <div class="card-head">
+            <span class="step-num">২</span>
+            <h2 id="h-topic">ভিডিওর টপিক লিখুন</h2>
+          </div>
+          <div class="field" id="field-topic">
+            <label for="topic">টপিক / শিরোনামের খসড়া <span class="req">*</span></label>
+            <input type="text" id="topic" placeholder="যেমন: অক্টোপাসের তিনটা হৃদয় কেন থাকে?" autocomplete="off" />
+            <p class="hint">SEO এই টপিক থেকেই তৈরি হবে — ভিডিওটি শুধু প্রিভিউ আর থাম্বনেইলের ছবির জন্য লাগে।</p>
+            <p class="err">আগে ভিডিওর টপিকটা লিখুন।</p>
+          </div>
+          <div class="field">
+            <label for="keyword">মূল কীওয়ার্ড <span style="color:var(--faint); font-weight:500;">(ঐচ্ছিক)</span></label>
+            <input type="text" id="keyword" placeholder="যেমন: অক্টোপাস" autocomplete="off" />
+            <p class="hint">ট্যাগ আর হ্যাশট্যাগে এই শব্দটি বেশি গুরুত্ব পাবে।</p>
+          </div>
+          <div class="field">
+            <label>ভিডিওর ধরন</label>
+            <div class="seg" role="group" aria-label="ভিডিওর ধরন">
+              <button type="button" id="type-short" aria-pressed="true">Shorts (৩ মিনিট পর্যন্ত)</button>
+              <button type="button" id="type-long" aria-pressed="false">লম্বা ভিডিও</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="viral-tags">ভাইরাল ট্যাগের তালিকা <span style="color:var(--faint); font-weight:500;">(নিজের তালিকা বসাতে পারেন)</span></label>
+            <textarea id="viral-tags" rows="3"></textarea>
+            <p class="hint">কমা দিয়ে আলাদা করে লিখুন। এগুলো টপিকের ট্যাগের শেষে যোগ হবে — সব মিলিয়ে YouTube-এর ৫০০ অক্ষরের সীমার মধ্যে রাখা হবে।</p>
+          </div>
+        </section>
+
+        <button class="generate-btn" id="generate-btn" type="button">
+          SEO তৈরি করুন
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <!-- publish guide -->
+        <section class="guide" aria-labelledby="h-publish">
+          <h2 id="h-publish">এই ওয়েবসাইটটি ইন্টারনেটে পাবলিশ করবেন যেভাবে</h2>
+          <p>এই পেজটি একটিমাত্র HTML ফাইল — কোনো সার্ভার বা ডাটাবেস লাগে না। ফাইলটি ডাউনলোড করে ফ্রি হোস্টিংয়ে তুললেই সবার জন্য লাইভ হয়ে যাবে।</p>
+          <div class="steps">
+            <div class="step-card">
+              <div class="n">ধাপ ১</div>
+              <h3>ফাইলটি ডাউনলোড করুন</h3>
+              <p>নিচের বোতামে চাপ দিলে এই পেজটি <b>index.html</b> নামে আপনার ফোন/কম্পিউটারে সেভ হবে।</p>
+            </div>
+            <div class="step-card">
+              <div class="n">ধাপ ২</div>
+              <h3>Netlify Drop-এ তুলুন (সবচেয়ে সহজ)</h3>
+              <p>ব্রাউজারে <b>app.netlify.com/drop</b> খুলে <b>index.html</b> ফাইলটি পেজের মধ্যে টেনে ছেড়ে দিন — সঙ্গে সঙ্গে একটি লাইভ লিংক পেয়ে যাবেন, অ্যাকাউন্টও লাগে না।</p>
+            </div>
+            <div class="step-card">
+              <div class="n">ধাপ ৩</div>
+              <h3>অন্য ফ্রি উপায়</h3>
+              <p><b>GitHub Pages</b>, <b>Vercel</b> বা <b>Cloudflare Pages</b>-এও একই ফাইল আপলোড করে ফ্রিতে পাবলিশ করা যায়। পরে ফাইল বদলালে নতুন ফাইলটি আবার আপলোড করলেই সাইট আপডেট হয়ে যাবে।</p>
+            </div>
+          </div>
+          <button class="dl-btn ghost" id="download-page-btn" type="button">এই পেজটি index.html হিসেবে ডাউনলোড করুন</button>
+        </section>
+      </div>
+
+      <!-- ================= RESULT VIEW ================= -->
+      <div id="view-result" aria-live="polite">
+        <div class="result-top">
+          <button class="back-btn" id="back-btn" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5m6 6-6-6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            নতুন SEO
+          </button>
+          <h2>আপনার SEO প্যাক</h2>
+          <p class="topic-echo" id="topic-echo"></p>
+        </div>
+
+        <section class="block" aria-labelledby="h-titles">
+          <div class="block-head">
+            <h3 id="h-titles">শিরোনাম</h3>
+            <span class="count">সীমা ১০০ অক্ষর</span>
+          </div>
+          <div id="title-list"></div>
+          <p style="color:var(--faint); font-size:14.5px; margin-top:10px;">যেটি পছন্দ সেটি বেছে নিন — বিবরণের প্রথম লাইনে সেটিই যাবে।</p>
+        </section>
+
+        <section class="block" aria-labelledby="h-desc">
+          <div class="block-head">
+            <h3 id="h-desc">বিবরণ (Description)</h3>
+            <button class="copy-btn" type="button" data-copy="desc">কপি</button>
+          </div>
+          <div class="text-box" id="desc-box"></div>
+          <p class="count" id="desc-count" style="margin-top:8px;"></p>
+        </section>
+
+        <section class="block" aria-labelledby="h-tags">
+          <div class="block-head">
+            <h3 id="h-tags">ট্যাগ</h3>
+            <button class="copy-btn" type="button" data-copy="tags">কপি</button>
+          </div>
+          <div class="chips" id="tag-chips"></div>
+          <div class="text-box mono" id="tags-box"></div>
+          <p class="count" id="tags-count" style="margin-top:8px;"></p>
+        </section>
+
+        <section class="block" aria-labelledby="h-hash">
+          <div class="block-head">
+            <h3 id="h-hash">হ্যাশট্যাগ</h3>
+            <button class="copy-btn" type="button" data-copy="hash">কপি</button>
+          </div>
+          <p class="hash-row" id="hash-box"></p>
+          <p style="color:var(--faint); font-size:14.5px; margin-top:6px;">এগুলো বিবরণের শেষেও দেওয়া আছে — YouTube প্রথম ৩টি শিরোনামের ওপরে দেখায়।</p>
+        </section>
+
+        <section class="block" aria-labelledby="h-thumb">
+          <div class="block-head">
+            <h3 id="h-thumb">থাম্বনেইলের লেখা</h3>
+            <button class="copy-btn" type="button" data-copy="thumb">কপি</button>
+          </div>
+          <div class="thumb-wrap" id="thumb-wrap">
+            <div class="no-frame" id="thumb-noframe">ভিডিও বেছে নিলে তার একটি ফ্রেম এখানে দেখা যাবে</div>
+            <img id="thumb-img" alt="ভিডিও থেকে নেওয়া থাম্বনেইল ফ্রেম" style="display:none;" />
+            <div class="thumb-text" id="thumb-text"></div>
+          </div>
+          <div class="thumb-opts" id="thumb-opts" role="group" aria-label="থাম্বনেইলের লেখার অপশন"></div>
+          <div class="thumb-edit">
+            <input type="text" id="thumb-custom" placeholder="নিজের লেখা লিখুন…" aria-label="থাম্বনেইলের নিজের লেখা" />
+            <button class="copy-btn" type="button" id="thumb-dl" style="min-height:46px;">থাম্বনেইল ছবি ডাউনলোড</button>
+          </div>
+        </section>
+
+        <section class="block" aria-labelledby="h-pin">
+          <div class="block-head">
+            <h3 id="h-pin">পিন করা কমেন্ট</h3>
+            <button class="copy-btn" type="button" data-copy="pin">কপি</button>
+          </div>
+          <div class="text-box" id="pin-box"></div>
+          <p style="color:var(--faint); font-size:14.5px; margin-top:8px;">ভিডিও পাবলিক হওয়ার পর এই কমেন্টটি করে পিন করে দিন।</p>
+        </section>
+
+        <div class="dl-row">
+          <button class="dl-btn primary" id="download-seo-btn" type="button">পুরো SEO প্যাক .txt ডাউনলোড</button>
+          <button class="dl-btn ghost" id="copy-all-btn" type="button">সব একসাথে কপি করুন</button>
+        </div>
+      </div>
+
+    </main>
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var $ = function (id) { return document.getElementById(id); };
+
+        var DEFAULT_VIRAL = "viral, shorts, trending, viral video, youtube shorts, shorts feed, fyp, viral shorts, trending shorts, amazing facts, science facts, facts video, জানা অজানা, ভাইরাল ভিডিও, অজানা তথ্য, বাংলা তথ্য, নতুন ভিডিও, ভাইরাল, শর্টস ভিডিও, তথ্য ভিডিও";
+        $("viral-tags").value = DEFAULT_VIRAL;
+
+        var state = {
+          type: "short",
+          frameURL: null,
+          frameImg: null,
+          videoW: 0,
+          videoH: 0,
+          seo: null,
+          thumbText: ""
+        };
+
+        /* ---------- toast ---------- */
+        var toastTimer = null;
+        function toast(msg) {
+          var t = $("toast");
+          t.textContent = msg;
+          t.classList.add("show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200);
+        }
+
+        /* ---------- video type toggle ---------- */
+        function setType(type) {
+          state.type = type;
+          $("type-short").setAttribute("aria-pressed", type === "short" ? "true" : "false");
+          $("type-long").setAttribute("aria-pressed", type === "long" ? "true" : "false");
+        }
+        $("type-short").addEventListener("click", function () { setType("short"); });
+        $("type-long").addEventListener("click", function () { setType("long"); });
+
+        /* ---------- video upload ---------- */
+        var dz = $("dropzone");
+        var fileInput = $("file-input");
+        var video = $("video-preview");
+
+        dz.addEventListener("dragover", function (e) { e.preventDefault(); dz.classList.add("drag"); });
+        dz.addEventListener("dragleave", function () { dz.classList.remove("drag"); });
+        dz.addEventListener("drop", function (e) {
+          e.preventDefault(); dz.classList.remove("drag");
+          if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener("change", function () {
+          if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+        });
+
+        function fmtDuration(sec) {
+          if (!isFinite(sec)) return "—";
+          sec = Math.round(sec);
+          var m = Math.floor(sec / 60), s = sec % 60;
+          return m + ":" + (s < 10 ? "0" : "") + s + " মিনিট";
+        }
+        function fmtSize(bytes) {
+          if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + " MB";
+          return Math.max(1, Math.round(bytes / 1024)) + " KB";
+        }
+
+        function handleFile(file) {
+          if (file.type.indexOf("video/") !== 0) { toast("এটি ভিডিও ফাইল নয় — একটি ভিডিও ফাইল বেছে নিন"); return; }
+          $("meta-name").textContent = file.name;
+          $("meta-size").textContent = fmtSize(file.size);
+          $("video-box").classList.add("show");
+          if (video.src) URL.revokeObjectURL(video.src);
+          video.src = URL.createObjectURL(file);
+          video.load();
+          state.frameURL = null;
+        }
+
+        video.addEventListener("loadedmetadata", function () {
+          $("meta-duration").textContent = fmtDuration(video.duration);
+          $("meta-res").textContent = video.videoWidth + " × " + video.videoHeight;
+          state.videoW = video.videoWidth;
+          state.videoH = video.videoHeight;
+          if (isFinite(video.duration)) {
+            if (video.duration <= 185 && video.videoHeight >= video.videoWidth) setType("short");
+            else if (video.duration > 185) setType("long");
+            try { video.currentTime = Math.min(2, video.duration * 0.3); } catch (e) {}
+          }
+        });
+        video.addEventListener("seeked", function () {
+          try {
+            var c = document.createElement("canvas");
+            c.width = video.videoWidth; c.height = video.videoHeight;
+            c.getContext("2d").drawImage(video, 0, 0);
+            state.frameURL = c.toDataURL("image/jpeg", 0.85);
+            var img = new Image();
+            img.onload = function () { state.frameImg = img; };
+            img.src = state.frameURL;
+          } catch (e) { state.frameURL = null; }
+        });
+
+        /* ---------- SEO generation ---------- */
+        var STOP = ["কেন", "কী", "কি", "হয়", "হবে", "থাকে", "এর", "এই", "একটি", "একটা", "না", "ও", "আর", "যখন", "তখন", "করে", "থেকে", "জন্য", "আছে", "নেই", "দিয়ে", "পরে", "আগে", "সব", "যে", "সে", "তা", "কীভাবে", "কিভাবে", "হলো", "হতে", "পারে", "যায়", "দেয়", "রয়েছে", "করা", "হওয়ার"];
+
+        function cleanTopic(t) {
+          return t.replace(/[?？!।.,"“”'']/g, "").replace(/\s+/g, " ").trim();
+        }
+        function dedupe(arr) {
+          var seen = {}, out = [];
+          arr.forEach(function (x) {
+            var k = x.toLowerCase();
+            if (x && !seen[k]) { seen[k] = 1; out.push(x); }
+          });
+          return out;
+        }
+
+        function buildTitles(base) {
+          var titles = [
+            base + "? গোপন রহস্য!",
+            base + "? 😱 আসল কারণ জানলে অবাক হবেন!",
+            base + "? রহস্য ফাঁস!"
+          ];
+          return titles.map(function (t) {
+            if (t.length > 100) t = t.slice(0, 99).trim() + "…";
+            return t;
+          });
+        }
+
+        function buildTags(topicClean, keyword) {
+          var words = topicClean.split(" ").filter(function (w) { return w.length > 1; });
+          var content = words.filter(function (w) { return STOP.indexOf(w) === -1; });
+          var tags = [topicClean];
+          if (keyword) {
+            tags.push(keyword);
+            tags.push(keyword + " কেন");
+            tags.push(keyword + " রহস্য");
+          }
+          for (var i = 0; i + 1 < content.length; i++) tags.push(content[i] + " " + content[i + 1]);
+          content.forEach(function (w) { if (w.length > 2) tags.push(w); });
+          tags = tags.concat([
+            "বাংলা info tv", "bangla info tv", "জানা অজানা", "অজানা তথ্য",
+            "বাংলা তথ্য ভিডিও", "science facts bangla", "bangla facts video", "তথ্যমূলক ভিডিও"
+          ]);
+          var viral = $("viral-tags").value.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+          tags = dedupe(tags.concat(viral));
+          var out = [], len = 0;
+          for (var j = 0; j < tags.length; j++) {
+            var add = tags[j].length + (out.length ? 2 : 0);
+            if (len + add > 500) break;
+            out.push(tags[j]); len += add;
+          }
+          return out;
+        }
+
+        function buildHashtags(keyword) {
+          var tags = [];
+          if (state.type === "short") tags.push("#Shorts");
+          tags.push("#বাংলা_Info_TV");
+          if (keyword) {
+            var k = keyword.replace(/\s+/g, "");
+            if (k) tags.push("#" + k);
+          }
+          tags.push("#জানা_অজানা");
+          if (state.type === "long") tags.push("#তথ্য");
+          return dedupe(tags).slice(0, 5);
+        }
+
+        function buildDescription(title, topicClean, hashtags) {
+          var lines = [
+            title,
+            "",
+            topicClean + " — এর পেছনের আসল কারণটা জানলে সত্যিই অবাক হবেন! 😱 এই ভিডিওতে সহজ ভাষায়, ধাপে ধাপে পুরো ব্যাপারটা বুঝিয়ে দেওয়া হয়েছে।",
+            "",
+            "ভিডিওটি ভালো লাগলে লাইক দিন, বন্ধুদের সাথে শেয়ার করুন, আর কমেন্টে লিখুন — এটা কি আপনি আগে জানতেন?",
+            "এমন আরও জানা-অজানা তথ্যের ভিডিও পেতে বাংলা Info TV চ্যানেলটি সাবস্ক্রাইব করে বেল আইকনটি চেপে দিন। 🔔",
+            "",
+            hashtags.join(" ")
+          ];
+          return lines.join("\n");
+        }
+
+        function buildThumbOptions(topicClean, keyword) {
+          var opts = ["গোপন রহস্য!", "জানলে অবাক হবেন!"];
+          var words = topicClean.split(" ").filter(function (w) { return STOP.indexOf(w) === -1 && w.length > 1; });
+          if (keyword) opts.push(keyword + " রহস্য!");
+          else if (words.length >= 2) opts.push(words.slice(0, 2).join(" ") + "!");
+          return dedupe(opts).slice(0, 3);
+        }
+
+        function generate() {
+          var topicRaw = $("topic").value.trim();
+          if (!topicRaw) {
+            $("field-topic").classList.add("invalid");
+            $("topic").focus();
+            return;
+          }
+          $("field-topic").classList.remove("invalid");
+          var keyword = $("keyword").value.trim();
+          var base = cleanTopic(topicRaw);
+          var titles = buildTitles(base);
+          var tags = buildTags(base, keyword);
+          var hashtags = buildHashtags(keyword);
+          state.seo = {
+            base: base,
+            keyword: keyword,
+            titles: titles,
+            titleIdx: 0,
+            tags: tags,
+            hashtags: hashtags,
+            thumbOptions: buildThumbOptions(base, keyword),
+            pin: "এটা কি তুমি আগে জানতে? কমেন্টে লেখো! 👇"
+          };
+          state.seo.description = buildDescription(titles[0], base, hashtags);
+          renderResults();
+          $("view-input").style.display = "none";
+          $("view-result").style.display = "block";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        $("generate-btn").addEventListener("click", generate);
+        $("topic").addEventListener("input", function () { $("field-topic").classList.remove("invalid"); });
+        $("topic").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); generate(); } });
+
+        /* ---------- render results ---------- */
+        var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+
+        function renderResults() {
+          var seo = state.seo;
+          $("topic-echo").textContent = "টপিক: " + seo.base + (state.type === "short" ? "  ·  Shorts" : "  ·  লম্বা ভিডিও");
+
+          var list = $("title-list");
+          list.innerHTML = "";
+          seo.titles.forEach(function (t, i) {
+            var row = document.createElement("label");
+            row.className = "title-opt" + (i === seo.titleIdx ? " selected" : "");
+            var radio = document.createElement("input");
+            radio.type = "radio"; radio.name = "title-choice"; radio.checked = i === seo.titleIdx;
+            radio.addEventListener("change", function () {
+              seo.titleIdx = i;
+              seo.description = buildDescription(seo.titles[i], seo.base, seo.hashtags);
+              renderResults();
+            });
+            var mid = document.createElement("span");
+            var tt = document.createElement("span"); tt.className = "t"; tt.textContent = t;
+            var cc = document.createElement("span"); cc.className = "c"; cc.textContent = t.length + " / 100 অক্ষর";
+            mid.appendChild(tt); mid.appendChild(document.createElement("br")); mid.appendChild(cc);
+            var btn = document.createElement("button");
+            btn.type = "button"; btn.className = "copy-btn"; btn.innerHTML = COPY_SVG + "কপি";
+            btn.addEventListener("click", function (e) { e.preventDefault(); copyText(t, btn); });
+            row.appendChild(radio); row.appendChild(mid); row.appendChild(btn);
+            list.appendChild(row);
+          });
+
+          $("desc-box").textContent = seo.description;
+          var dc = $("desc-count");
+          dc.textContent = seo.description.length + " / 5000 অক্ষর";
+          dc.classList.toggle("over", seo.description.length > 5000);
+
+          var chips = $("tag-chips");
+          chips.innerHTML = "";
+          seo.tags.forEach(function (t) {
+            var s = document.createElement("span"); s.className = "chip"; s.textContent = t; chips.appendChild(s);
+          });
+          $("tags-box").textContent = seo.tags.join(", ");
+          var tc = $("tags-count");
+          tc.textContent = seo.tags.length + "টি ট্যাগ · " + seo.tags.join(", ").length + " / 500 অক্ষর";
+          tc.classList.toggle("over", seo.tags.join(", ").length > 500);
+
+          $("hash-box").textContent = seo.hashtags.join("  ");
+          $("pin-box").textContent = seo.pin;
+
+          var wrap = $("thumb-wrap");
+          var img = $("thumb-img");
+          var noframe = $("thumb-noframe");
+          if (state.frameURL) {
+            img.src = state.frameURL; img.style.display = "block"; noframe.style.display = "none";
+          } else {
+            img.style.display = "none"; noframe.style.display = "flex";
+          }
+          wrap.classList.toggle("portrait", state.videoH > state.videoW && state.videoW > 0);
+
+          var opts = $("thumb-opts");
+          opts.innerHTML = "";
+          seo.thumbOptions.forEach(function (o, i) {
+            var b = document.createElement("button");
+            b.type = "button"; b.textContent = o;
+            b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+            b.addEventListener("click", function () {
+              $("thumb-custom").value = "";
+              setThumbText(o);
+              Array.prototype.forEach.call(opts.children, function (x) { x.setAttribute("aria-pressed", "false"); });
+              b.setAttribute("aria-pressed", "true");
+            });
+            opts.appendChild(b);
+          });
+          $("thumb-custom").value = "";
+          setThumbText(seo.thumbOptions[0] || "গোপন রহস্য!");
+        }
+
+        function setThumbText(t) {
+          state.thumbText = t;
+          $("thumb-text").textContent = t;
+        }
+        $("thumb-custom").addEventListener("input", function () {
+          var v = $("thumb-custom").value.trim();
+          if (v) {
+            setThumbText(v);
+            Array.prototype.forEach.call($("thumb-opts").children, function (x) { x.setAttribute("aria-pressed", "false"); });
+          }
+        });
+
+        $("back-btn").addEventListener("click", function () {
+          $("view-result").style.display = "none";
+          $("view-input").style.display = "block";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        /* ---------- copy helpers ---------- */
+        function copyText(text, btn) {
+          function done() {
+            if (btn) {
+              var old = btn.innerHTML;
+              btn.classList.add("done");
+              btn.innerHTML = "কপি হয়েছে ✓";
+              setTimeout(function () { btn.classList.remove("done"); btn.innerHTML = old; }, 1800);
+            }
+            toast("কপি হয়েছে");
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+          } else { fallbackCopy(text, done); }
+        }
+        function fallbackCopy(text, done) {
+          var ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand("copy"); done(); }
+          catch (e) { toast("কপি হয়নি — লেখাটি ধরে কপি করুন"); }
+          document.body.removeChild(ta);
+        }
+
+        document.querySelectorAll("[data-copy]").forEach(function (btn) {
+          btn.innerHTML = COPY_SVG + "কপি";
+          btn.addEventListener("click", function () {
+            if (!state.seo) return;
+            var kind = btn.getAttribute("data-copy");
+            var text = "";
+            if (kind === "desc") text = state.seo.description;
+            if (kind === "tags") text = state.seo.tags.join(", ");
+            if (kind === "hash") text = state.seo.hashtags.join(" ");
+            if (kind === "thumb") text = state.thumbText;
+            if (kind === "pin") text = state.seo.pin;
+            copyText(text, btn);
+          });
+        });
+
+        function seoPackText() {
+          var seo = state.seo;
+          return [
+            "শিরোনাম: " + seo.titles[seo.titleIdx],
+            "",
+            "বিকল্প শিরোনাম:",
+            seo.titles.map(function (t, i) { return (i + 1) + ". " + t; }).join("\n"),
+            "",
+            "বিবরণ:",
+            seo.description,
+            "",
+            "ট্যাগ (" + seo.tags.length + "টি, " + seo.tags.join(", ").length + "/500 অক্ষর):",
+            seo.tags.join(", "),
+            "",
+            "হ্যাশট্যাগ: " + seo.hashtags.join(" "),
+            "",
+            "থাম্বনেইলের লেখা: " + state.thumbText,
+            "",
+            "পিন করা কমেন্ট: " + seo.pin
+          ].join("\n");
+        }
+
+        function download(name, blob) {
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+        }
+
+        $("download-seo-btn").addEventListener("click", function () {
+          if (!state.seo) return;
+          var name = state.seo.base.replace(/[\\/:*?"<>|]/g, "").slice(0, 60) || "youtube-seo";
+          download(name + " - SEO.txt", new Blob([seoPackText()], { type: "text/plain;charset=utf-8" }));
+          toast("SEO প্যাক ডাউনলোড হচ্ছে");
+        });
+        $("copy-all-btn").addEventListener("click", function () {
+          if (state.seo) copyText(seoPackText(), $("copy-all-btn"));
+        });
+
+        /* ---------- thumbnail download ---------- */
+        $("thumb-dl").addEventListener("click", function () {
+          if (!state.frameImg) { toast("আগে একটি ভিডিও বেছে নিন — তাহলেই ফ্রেমসহ থাম্বনেইল নামবে"); return; }
+          var img = state.frameImg;
+          var scale = Math.min(1, 1280 / img.width);
+          var c = document.createElement("canvas");
+          c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+          var ctx = c.getContext("2d");
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          var text = state.thumbText || "";
+          if (text) {
+            var fs = Math.round(c.width * 0.085);
+            ctx.font = "700 " + fs + "px 'Hind Siliguri', sans-serif";
+            ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+            var words = text.split(" "), lines = [], line = "";
+            words.forEach(function (w) {
+              var test = line ? line + " " + w : w;
+              if (ctx.measureText(test).width > c.width * 0.92 && line) { lines.push(line); line = w; }
+              else line = test;
+            });
+            if (line) lines.push(line);
+            ctx.lineWidth = Math.max(4, fs / 7);
+            ctx.strokeStyle = "#000"; ctx.lineJoin = "round";
+            ctx.fillStyle = "#ffe600";
+            var y = c.height - c.height * 0.06;
+            for (var i = lines.length - 1; i >= 0; i--) {
+              ctx.strokeText(lines[i], c.width / 2, y);
+              ctx.fillText(lines[i], c.width / 2, y);
+              y -= fs * 1.25;
+            }
+          }
+          if (c.toBlob) {
+            c.toBlob(function (b) { if (b) { download("thumbnail.png", b); toast("থাম্বনেইল ডাউনলোড হচ্ছে"); } }, "image/png");
+          }
+        });
+
+        /* ---------- download this page ---------- */
+        $("download-page-btn").addEventListener("click", function () {
+          var html = "<!doctype html>\n" + document.documentElement.outerHTML;
+          download("index.html", new Blob([html], { type: "text/html;charset=utf-8" }));
+          toast("index.html ডাউনলোড হচ্ছে — এবার Netlify Drop-এ তুলুন");
+        });
+      })();
+    </script>
+  </body>
+</html>
